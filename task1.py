@@ -1,3 +1,4 @@
+from classifiers.DecisionTree import DecisionTree
 from featureGenerator import save_features_to_json
 import imageLoader
 import modelFactory
@@ -52,7 +53,7 @@ if data is not None:
     #features will be latent features of the images in the given folder
     features = data[0]
     #each labels will correspond to each feature row in the features matrix
-    labels = data[1]
+    labels = [x.split("-")[2] for x in data[1]]
     #train classifier as given in the input
     classifier = args.classifier
     if classifier == 'ppr':
@@ -63,8 +64,18 @@ if data is not None:
         pass
     else:
         #Train decision tree
+        dt = DecisionTree(features,labels)
+        dt.train()
+        test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
+        test_features = test_data[0]
+        test_lables = [x.split("-")[2] for x in test_data[1]]
+        i=0
+        for test_feature in test_features:
+            lab = dt.predict(test_feature)
+            print(lab, test_lables[i])
+            i+=1
         pass
-    print(labels.shape)
+    # print(labels.shape)
     #load query data to which we are supposed to assign labels
     # query_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
     #assign types using the classifier above
