@@ -35,7 +35,7 @@ class DecisionTree:
     def getGiniWeasly(self, l, r):
         lSize = len(l)
         rSize = len(r)
-        total_samples = lSize+rSize
+        total_samples = lSize + rSize
         lScore = 0.0
         gini = 0.0
         rScore = 0.0
@@ -105,7 +105,7 @@ class DecisionTree:
             save_object(self.path,self.head,file_name)
     
     def isLeaf(self, node):
-        return node.left!=None and node.right!=None
+        return node.left is not None and node.right is not None
 
     def predict(self, testFeature):
         root = self.head

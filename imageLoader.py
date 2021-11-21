@@ -19,7 +19,7 @@ def show_image(path):
     plt.show()
 
 
-# Loads images from the fodler at the given path, relative to the current location
+# Loads images from the folder at the given path, relative to the current location
 def load_images_from_folder(path):
     images = []
     labels = []
