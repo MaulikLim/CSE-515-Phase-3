@@ -1,5 +1,4 @@
 import numpy as np
-from genericpath import isfile
 import os
 import json
 import featureGenerator
@@ -13,10 +12,11 @@ def load_json(file_path):
             return json.load(feature_descriptors)
     return None
 
+
 # Retrieves numpy array of labels and their corresponding feature vectors for the given model name
 def load_features_for_model(folder_path, model_name, file_name='feature_descriptors'):
     file_name = file_name + "_" + model_name + ".json"
-    print('Loading features from path '+folder_path)
+    print('Loading features from path ' + folder_path)
     features_descriptors = load_json(folder_path + '/' + file_name)
     if features_descriptors is None:
         labels, images = imageLoader.load_images_from_folder(folder_path)
