@@ -7,6 +7,8 @@ def compute_latent_features(folder_path, feature_model, k):
     data = featureLoader.load_features_for_model(folder_path, feature_model)
     labels = data[0]
     features = data[1]
+    if k<0:
+        return features,labels
     if latent_features_descriptors is None:
         pca = PCA(k)
         latent_features_descriptors = [pca.compute_semantics(features), labels.tolist()]
