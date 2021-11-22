@@ -1,3 +1,5 @@
+from sklearn.preprocessing import MinMaxScaler
+
 from classifier.svm import SVM
 from featureGenerator import save_features_to_json
 import imageLoader
@@ -64,10 +66,13 @@ if data is not None:
         # Train SVM
         svm = SVM()
         labels = [int(x)-1 for x in labels]
-        svm.train(np.array(features), np.array(labels), 10000, 1e-5, 1e-6, verbose=True)
+        min_max_scalar = MinMaxScaler()
+        features = min_max_scalar.fit_transform(features)
+        svm.train(np.array(features), np.array(labels), 10000, 1e-2, 1e-5, verbose=True)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [int(x.split("-")[3].split('.')[0]) - 1 for x in test_data[1]]
+        test_features = min_max_scalar.fit_transform(test_features)
         test_predictions = svm.predict(test_features)
         print_matrices(test_labels, test_predictions)
 

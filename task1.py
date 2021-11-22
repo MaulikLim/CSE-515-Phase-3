@@ -1,3 +1,5 @@
+from sklearn.preprocessing import MinMaxScaler
+
 from classifiers.DecisionTree import DecisionTree
 from classifier.svm import SVM
 from metrics_utils import print_matrices
@@ -39,30 +41,38 @@ if data is not None:
     elif classifier == 'svm':
         # Train SVM
         svm = SVM()
-        labels = [int(x) - 1 for x in labels]
-        svm.train(np.array(features), np.array(labels), 10000, 1e-5, 1e-6, verbose=True)
+        label_map = {}
+        labels_set = list(set(labels))
+        for i, label in enumerate(labels_set):
+            label_map[label] = i
+        labels = [label_map[x] for x in labels]
+        min_max_scalar = MinMaxScaler()
+        features = min_max_scalar.fit_transform(features)
+        svm.train(np.array(features), np.array(labels), 10000, 1e-3, 1e-5, verbose=True)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
-        test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]
+        test_labels = [label_map[x.split("-")[1]] for x in test_data[1]]
+        test_features = min_max_scalar.fit_transform(test_features)
         test_predictions = svm.predict(test_features)
+        print(list(label_map.keys()))
         print_matrices(test_labels, test_predictions)
 
     else:
-        #Train decision tree
-        dt = DecisionTree(features,labels, args.folder_path, args.feature_model, args.k)
+        # Train decision tree
+        dt = DecisionTree(features, labels, args.folder_path, args.feature_model, args.k)
         dt.train()
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_lables = [x.split("-")[1] for x in test_data[1]]
-        i=0
+        i = 0
         acc = 0
         for test_feature in test_features:
             lab = dt.predict(test_feature)
-            if lab==test_lables[i]:
-                acc+=1
+            if lab == test_lables[i]:
+                acc += 1
             # print(lab, test_lables[i])
-            i+=1
-        print(acc*100/i)
+            i += 1
+        print(acc * 100 / i)
         pass
     # print(labels.shape)
     # load query data to which we are supposed to assign labels
