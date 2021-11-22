@@ -3,13 +3,19 @@ import os
 import json
 import featureGenerator
 import imageLoader
-
+import pickle
 
 # Loads json file of feature descriptor
 def load_json(file_path):
     if os.path.isfile(file_path):
         with open(file_path, 'r') as feature_descriptors:
             return json.load(feature_descriptors)
+    return None
+def load_object(file_path):
+    if os.path.isfile(file_path):
+        with open(file_path, 'rb') as inp:
+            obj = pickle.load(inp)
+            return obj
     return None
 
 

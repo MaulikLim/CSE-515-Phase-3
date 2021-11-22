@@ -48,17 +48,21 @@ if data is not None:
         print_matrices(test_labels, test_predictions)
 
     else:
-        # Train decision tree
-        dt = DecisionTree(features, labels)
+        #Train decision tree
+        dt = DecisionTree(features,labels, args.folder_path, args.feature_model, args.k)
         dt.train()
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
-        test_lables = [x.split("-")[2] for x in test_data[1]]
-        i = 0
+        test_lables = [x.split("-")[1] for x in test_data[1]]
+        i=0
+        acc = 0
         for test_feature in test_features:
             lab = dt.predict(test_feature)
-            print(lab, test_lables[i])
-            i += 1
+            if lab==test_lables[i]:
+                acc+=1
+            # print(lab, test_lables[i])
+            i+=1
+        print(acc*100/i)
         pass
     # print(labels.shape)
     # load query data to which we are supposed to assign labels
