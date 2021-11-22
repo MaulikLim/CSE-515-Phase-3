@@ -68,6 +68,7 @@ if data is not None:
             label_map[label] = i
             reverse_map[i] = label
         labels = [label_map[x] for x in labels]
+
         dt = DecisionTree(features,np.array(labels))
         dt.train()
 

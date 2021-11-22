@@ -12,7 +12,7 @@ class DecisionTree:
     
     def __init__(self, features, labels):
         self.data = np.c_[features,labels]
-        self.max_depth = 10
+        self.max_depth = 15
         self.head = None
         self.classes = len(set(labels))
     

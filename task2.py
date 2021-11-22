@@ -1,5 +1,6 @@
 from classifier.svm import SVM
 from sklearn.preprocessing import MinMaxScaler
+from classifiers.DecisionTree import DecisionTree
 from featureGenerator import save_features_to_json
 import imageLoader
 import modelFactory
@@ -77,6 +78,25 @@ if data is not None:
 
     else:
         # Train decision tree
+        label_map = {}
+        labels_set = list(set(labels))
+        reverse_map = {}
+        for i, label in enumerate(labels_set):
+            label_map[label] = i
+            reverse_map[i] = label
+        labels = [label_map[x] for x in labels]
+
+        dt = DecisionTree(features,np.array(labels))
+        dt.train()
+
+        test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
+        test_features = test_data[0]
+        test_labels = [x.split("-")[2] for x in test_data[1]]
+
+        predict_labels = []
+        for i,feature in enumerate(test_features):
+            predict_labels.append(reverse_map[dt.predict(feature)])
+        print_matrices(np.array(test_labels), np.array(predict_labels))
         pass
     # load query data to which we are supposed to assign labels
     query_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
