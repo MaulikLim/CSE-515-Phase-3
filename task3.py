@@ -7,7 +7,8 @@ import json
 import numpy as np
 import pdb
 import featureLoader
-import latentFeatureGenerator;
+import latentFeatureGenerator
+from metrics_utils import print_matrices
 
 from tech.PCA import PCA
 from utilities import print_semantics_sub, print_semantics_type
@@ -53,7 +54,7 @@ if data is not None:
     # features will be latent features of the images in the given folder
     features = data[0]
     # each labels will correspond to each feature row in the features matrix
-    labels = [x.split("-")[3] for x in data[1]]
+    labels = [x.split("-")[3].split('.')[0] for x in data[1]]
     # train classifier as given in the input
     classifier = args.classifier.lower()
     if classifier == 'ppr':
@@ -66,9 +67,10 @@ if data is not None:
         svm.train(np.array(features), np.array(labels), 10000, 1e-5, 1e-6, verbose=True)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
-        test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]
+        test_labels = [int(x.split("-")[3].split('.')[0]) - 1 for x in test_data[1]]
         test_predictions = svm.predict(test_features)
-        print(sum(test_predictions == test_labels)/len(test_labels))
+        print_matrices(test_labels, test_predictions)
+
     else:
         # Train decision tree
         pass

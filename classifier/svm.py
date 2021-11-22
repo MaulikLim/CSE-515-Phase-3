@@ -12,7 +12,6 @@ class SVM(object):
         if not self.W:
             self.W = 5e-5 * np.random.randn(features, num_classes)
 
-        # Run stochastic gradient descent to optimize W
         losses = []
         for itr in range(train_iterations):
             mini_batch_indices = np.random.choice(records, batch_size, replace=True)

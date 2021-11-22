@@ -1,5 +1,6 @@
 from classifiers.DecisionTree import DecisionTree
 from classifier.svm import SVM
+from metrics_utils import print_matrices
 from featureGenerator import save_features_to_json
 import imageLoader
 import modelFactory
@@ -8,44 +9,19 @@ import json
 import numpy as np
 import pdb
 import featureLoader
-import latentFeatureGenerator;
+import latentFeatureGenerator
 
+from arg_parser_util import Parser
 from tech.PCA import PCA
 from utilities import print_semantics_sub, print_semantics_type
 
-parser = argparse.ArgumentParser(description="Task 1")
-parser.add_argument(
-    "-fp",
-    "--folder_path",
-    type=str,
-    required=True,
-)
-parser.add_argument(
-    "-f",
-    "--feature_model",
-    type=str,
-    required=True,
-)
-parser.add_argument(
-    "-k",
-    "--k",
-    type=int,
-    required=True,
-)
-
-parser.add_argument(
-    "-qf",
-    "--query_folder",
-    type=str,
-    required=True,
-)
-
-parser.add_argument(
-    "-c",
-    "--classifier",
-    type=str,
-    required=True,
-)
+# parser = argparse.ArgumentParser(description="Task 1")
+parser = Parser("Task 1")
+parser.add_args("-fp", "--folder_path", str, True)
+parser.add_args("-f", "--feature_model", str, True)
+parser.add_args("-k", "--k", int, True)
+parser.add_args("-qf", "--query_folder", str, True)
+parser.add_args("-c", "--classifier", str, True)
 
 args = parser.parse_args()
 
@@ -63,13 +39,14 @@ if data is not None:
     elif classifier == 'svm':
         # Train SVM
         svm = SVM()
-        labels = [int(x)-1 for x in labels]
+        labels = [int(x) - 1 for x in labels]
         svm.train(np.array(features), np.array(labels), 10000, 1e-5, 1e-6, verbose=True)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]
         test_predictions = svm.predict(test_features)
-        print(sum(test_predictions == test_labels)/len(test_labels))
+        print_matrices(test_labels, test_predictions)
+
     else:
         # Train decision tree
         dt = DecisionTree(features, labels)

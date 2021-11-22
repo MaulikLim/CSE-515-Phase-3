@@ -8,6 +8,7 @@ import numpy as np
 import pdb
 import featureLoader
 import latentFeatureGenerator;
+from metrics_utils import print_matrices
 
 from tech.PCA import PCA
 from utilities import print_semantics_sub, print_semantics_type
@@ -68,7 +69,8 @@ if data is not None:
         test_features = test_data[0]
         test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]
         test_predictions = svm.predict(test_features)
-        print(sum(test_predictions == test_labels)/len(test_labels))
+        print_matrices(test_labels, test_predictions)
+
     else:
         # Train decision tree
         pass
