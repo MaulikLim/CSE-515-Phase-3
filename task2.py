@@ -1,4 +1,6 @@
 from classifier.svm import SVM
+from sklearn.preprocessing import MinMaxScaler
+from classifiers.DecisionTree import DecisionTree
 from featureGenerator import save_features_to_json
 import imageLoader
 import modelFactory
@@ -8,6 +10,7 @@ import numpy as np
 import pdb
 import featureLoader
 import latentFeatureGenerator;
+from metrics_utils import print_matrices
 
 from tech.PCA import PCA
 from utilities import print_semantics_sub, print_semantics_type
@@ -63,14 +66,37 @@ if data is not None:
         # Train SVM
         svm = SVM()
         labels = [int(x)-1 for x in labels]
-        svm.train(np.array(features), np.array(labels), 10000, 1e-5, 1e-6, verbose=True)
+        min_max_scalar = MinMaxScaler()
+        features = min_max_scalar.fit_transform(features)
+        svm.train(np.array(features), np.array(labels), 10000, 5e-2, 1e-5, verbose=True)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]
+        test_features = min_max_scalar.fit_transform(test_features)
         test_predictions = svm.predict(test_features)
-        print(sum(test_predictions == test_labels)/len(test_labels))
+        print_matrices(test_labels, test_predictions)
+
     else:
         # Train decision tree
+        label_map = {}
+        labels_set = list(set(labels))
+        reverse_map = {}
+        for i, label in enumerate(labels_set):
+            label_map[label] = i
+            reverse_map[i] = label
+        labels = [label_map[x] for x in labels]
+
+        dt = DecisionTree(features,np.array(labels))
+        dt.train()
+
+        test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
+        test_features = test_data[0]
+        test_labels = [x.split("-")[2] for x in test_data[1]]
+
+        predict_labels = []
+        for i,feature in enumerate(test_features):
+            predict_labels.append(reverse_map[dt.predict(feature)])
+        print_matrices(np.array(test_labels), np.array(predict_labels))
         pass
     # load query data to which we are supposed to assign labels
     query_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)

@@ -1,3 +1,5 @@
+from sklearn.preprocessing import MinMaxScaler
+
 from classifiers.DecisionTree import DecisionTree
 from classifier.svm import SVM
 from classifier.ppr import Personalised_Page_Rank
@@ -9,44 +11,21 @@ import json
 import numpy as np
 import pdb
 import featureLoader
-import latentFeatureGenerator;
+import latentFeatureGenerator
+from sklearn import tree;
 
+
+from arg_parser_util import Parser
 from tech.PCA import PCA
 from utilities import print_semantics_sub, print_semantics_type
 
-parser = argparse.ArgumentParser(description="Task 1")
-parser.add_argument(
-    "-fp",
-    "--folder_path",
-    type=str,
-    required=True,
-)
-parser.add_argument(
-    "-f",
-    "--feature_model",
-    type=str,
-    required=True,
-)
-parser.add_argument(
-    "-k",
-    "--k",
-    type=int,
-    required=True,
-)
-
-parser.add_argument(
-    "-qf",
-    "--query_folder",
-    type=str,
-    required=True,
-)
-
-parser.add_argument(
-    "-c",
-    "--classifier",
-    type=str,
-    required=True,
-)
+# parser = argparse.ArgumentParser(description="Task 1")
+parser = Parser("Task 1")
+parser.add_args("-fp", "--folder_path", str, True)
+parser.add_args("-f", "--feature_model", str, True)
+parser.add_args("-k", "--k", int, True)
+parser.add_args("-qf", "--query_folder", str, True)
+parser.add_args("-c", "--classifier", str, True)
 
 args = parser.parse_args()
 
@@ -76,31 +55,41 @@ if data is not None:
     elif classifier == 'svm':
         # Train SVM
         svm = SVM()
-        labels = [int(x)-1 for x in labels]
-        svm.train(np.array(features), np.array(labels), 10000, 1e-5, 1e-6, verbose=True)
+        label_map = {}
+        labels_set = list(set(labels))
+        for i, label in enumerate(labels_set):
+            label_map[label] = i
+        labels = [label_map[x] for x in labels]
+        min_max_scalar = MinMaxScaler()
+        features = min_max_scalar.fit_transform(features)
+        svm.train(np.array(features), np.array(labels), 10000, 1e-3, 1e-5, verbose=True)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
-        test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]
+        test_labels = [label_map[x.split("-")[1]] for x in test_data[1]]
+        test_features = min_max_scalar.fit_transform(test_features)
         test_predictions = svm.predict(test_features)
-        print(sum(test_predictions == test_labels)/len(test_labels))
+        print(list(label_map.keys()))
+        print_matrices(test_labels, test_predictions)
+
     else:
-        #Train decision tree
-        dt = DecisionTree(features,labels, args.folder_path, args.feature_model, args.k)
+         #Train decision tree
+        label_map = {}
+        labels_set = list(set(labels))
+        reverse_map = {}
+        for i, label in enumerate(labels_set):
+            label_map[label] = i
+            reverse_map[i] = label
+        labels = [label_map[x] for x in labels]
+
+        dt = DecisionTree(features,np.array(labels))
         dt.train()
+
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
-        test_lables = [x.split("-")[1] for x in test_data[1]]
-        i=0
-        acc = 0
-        for test_feature in test_features:
-            lab = dt.predict(test_feature)
-            if lab==test_lables[i]:
-                acc+=1
-            # print(lab, test_lables[i])
-            i+=1
-        print(acc*100/i)
+        test_labels = [x.split("-")[1] for x in test_data[1]]
+
+        predict_labels = []
+        for i,feature in enumerate(test_features):
+            predict_labels.append(reverse_map[dt.predict(feature)])
+        print_matrices(np.array(test_labels), np.array(predict_labels))
         pass
-    # print(labels.shape)
-    # load query data to which we are supposed to assign labels
-    # query_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
-    # assign types using the classifier above
