@@ -12,6 +12,7 @@ import numpy as np
 import pdb
 import featureLoader
 import latentFeatureGenerator
+from metrics_utils import print_matrices
 from sklearn import tree;
 
 
