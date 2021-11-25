@@ -21,7 +21,8 @@ class VA:
         print("Size of lower dim data: " + str(lower_dim_size))
         metadata_size = self.min_values.nbytes + self.max_values.nbytes
         print("Metadata size: " + str(metadata_size))
-        print("Total index size: " + str(data_size + lower_dim_size + metadata_size))
+        print("Total index size: " +
+              str(data_size + lower_dim_size + metadata_size))
 
     def get_min_max(self):
         min_data = np.amin(self.data, axis=0)
@@ -108,6 +109,7 @@ class VA:
                         heapq.heappush(result, (-dist, self.labels[i]))
         print("Number of unique and overall images considered: " + str(candidates))
         print("False positive: " + str(false_pos))
+        print(result)
         result = [(result[x][1], -result[x][0])
                   for x in range(-1, -len(result)-1, -1)]
         index_results = [x[0] for x in result]
@@ -116,6 +118,7 @@ class VA:
             if x not in index_results:
                 miss += 1
         print("Miss: "+str(miss))
+        result.sort(key=lambda x: x[1])
         print(result)
 
     def compare_top_k(self, query, k):
