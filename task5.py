@@ -2,8 +2,10 @@ import numpy as np
 import featureLoader
 import imageLoader
 import modelFactory
+import indexes.vaUtility as va_utility
 from indexes.va import VA
 from arg_parser_util import Parser
+import json
 
 parser = Parser("Task 1")
 parser.add_args("-fp", "--folder_path", str, True)
@@ -18,6 +20,7 @@ labels, data = featureLoader.load_features_for_model(args.folder_path, args.feat
 if data is not None:
     index = VA(args.bits_per_dimension)
     index.populate_index(labels, data)
+    file_name = 'index_va_' + args.feature_model + '_' + str(args.bits_per_dimension) + '.json'
+    va_utility.save_index(index, args.folder_path, file_name)
     query = modelFactory.get_model(args.feature_model).compute_features(imageLoader.load_image(args.query_path))
-    index.compare_top_k(query, args.t)
-    
+    va_utility.get_top_t(args.folder_path, file_name, query, args.t)

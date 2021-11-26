@@ -9,6 +9,15 @@ class VA:
         self.b = b
         self.partition_per_dim = 2 ** b
 
+    def restore(self, index_json):
+        self.b = index_json['b']
+        self.partition_per_dim = index_json['partition_per_dim']
+        self.labels = np.array(index_json['labels'])
+        self.data = np.array(index_json['data'])
+        self.min_values = np.array(index_json['min_values'])
+        self.max_values = np.array(index_json['max_values'])
+        self.lower_dim_data = np.array(index_json['lower_dim_data'])
+
     def populate_index(self, labels, data):
         self.labels = labels
         self.data = data
@@ -21,8 +30,7 @@ class VA:
         print("Size of lower dim data: " + str(lower_dim_size))
         metadata_size = self.min_values.nbytes + self.max_values.nbytes
         print("Metadata size: " + str(metadata_size))
-        print("Total index size: " +
-              str(data_size + lower_dim_size + metadata_size))
+        print("Total index size: " + str(data_size + lower_dim_size + metadata_size))
 
     def get_min_max(self):
         min_data = np.amin(self.data, axis=0)
@@ -83,34 +91,44 @@ class VA:
         ans = np.argsort(distances)[:k]
         return [self.labels[x] for x in ans]
 
+    def bucket_to_string(self, bucket):
+        encoding = ''
+        for x in bucket:
+            encoding += '#' + str(int(x))
+        return encoding
+
     def get_top_k_low_dim(self, query, k, actual_results):
         query_low_dim = self.get_lower_dim_rep(query)
         result = []
         candidates = 0
         false_pos = 0
+        buckets = set()
         for i in range(len(self.labels)):
             if len(result) < k:
                 if self.labels[i] not in actual_results:
                     false_pos += 1
                 heapq.heappush(
-                    result, (-self.cal_l2_distance(query, self.data[i]), self.labels[i]))
+                    result, (-self.cal_l2_distance(query, self.data[i]), self.labels[i], self.data[i]))
                 candidates += 1
+                buckets.add(self.bucket_to_string(self.lower_dim_data[i]))
             else:
                 curr_largest = result[0]
                 lower_bound = self.cal_lower_bound(
                     query, query_low_dim, self.lower_dim_data[i])
                 if lower_bound < -curr_largest[0]:
+                    buckets.add(self.bucket_to_string(self.lower_dim_data[i]))
                     candidates += 1
                     if self.labels[i] not in actual_results:
                         false_pos += 1
                     dist = self.cal_l2_distance(query, self.data[i])
                     if dist < -curr_largest[0]:
                         heapq.heappop(result)
-                        heapq.heappush(result, (-dist, self.labels[i]))
+                        heapq.heappush(result, (-dist, self.labels[i], self.data[i]))
+        print("Number of buckets searched: "+str(len(buckets)))
         print("Number of unique and overall images considered: " + str(candidates))
         print("False positive: " + str(false_pos))
-        print(result)
-        result = [(result[x][1], -result[x][0])
+        # print(result)
+        result = [(result[x][1], -result[x][0], result[x][2])
                   for x in range(-1, -len(result)-1, -1)]
         index_results = [x[0] for x in result]
         miss = 0
@@ -118,10 +136,10 @@ class VA:
             if x not in index_results:
                 miss += 1
         print("Miss: "+str(miss))
-        result.sort(key=lambda x: x[1])
-        print(result)
+        result.sort(key=lambda x:x[1])
+        return result
 
     def compare_top_k(self, query, k):
         actual_results = self.get_top_k(query, k)
-        print(actual_results)
-        self.get_top_k_low_dim(query, k, actual_results)
+        # print(actual_results)
+        return self.get_top_k_low_dim(query, k, actual_results)
