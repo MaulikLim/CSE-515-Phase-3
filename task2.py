@@ -67,7 +67,7 @@ if data is not None:
         labels = [int(x)-1 for x in labels]
         min_max_scalar = MinMaxScaler()
         features = min_max_scalar.fit_transform(features)
-        svm.train(np.array(features), np.array(labels), 10000, 5e-2, 1e-5, verbose=True)
+        svm.train(np.array(features), np.array(labels), -1, 10000, 5e-2, 1e-5, verbose=True)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]

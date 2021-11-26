@@ -6,9 +6,10 @@ class SVM(object):
     def __init__(self):
         self.W = None
 
-    def train(self, X, y, train_iterations=100, learning_rate=1e-3, regularization=1e-5, batch_size=200, verbose=False):
+    def train(self, X, y, C=-1, train_iterations=100, learning_rate=1e-3, regularization=1e-5, batch_size=200,
+              verbose=False):
         records, features = X.shape
-        num_classes = np.max(y) + 1
+        num_classes = np.max(y) + 1 if C == -1 else C
         if not self.W:
             self.W = 5e-5 * np.random.randn(features, num_classes)
 
