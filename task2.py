@@ -68,11 +68,11 @@ if data is not None:
         labels = [int(x)-1 for x in labels]
         min_max_scalar = MinMaxScaler()
         features = min_max_scalar.fit_transform(features)
-        svm.train(np.array(features), np.array(labels), -1, 10000, 5e-2, 1e-5, verbose=True)
+        svm.train(np.array(features), np.array(labels), -1, 10000, 5e-2, 1e-5, verbose=False)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [int(x.split("-")[2]) - 1 for x in test_data[1]]
-        test_features = min_max_scalar.fit_transform(test_features)
+        test_features = min_max_scalar.transform(test_features)
         test_predictions = svm.predict(test_features)
         print_matrices(test_labels, test_predictions)
 
@@ -96,7 +96,7 @@ if data is not None:
         predict_labels = []
         for i,feature in enumerate(test_features):
             predict_labels.append(reverse_map[dt.predict(feature)])
-        print_matrices(np.array(test_labels), np.array(predict_labels))
+        print_matrices(test_labels, predict_labels)
         pass
     # load query data to which we are supposed to assign labels
     query_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)

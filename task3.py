@@ -73,7 +73,7 @@ if data is not None:
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [int(x.split("-")[3].split('.')[0]) - 1 for x in test_data[1]]
-        test_features = min_max_scalar.fit_transform(test_features)
+        test_features = min_max_scalar.transform(test_features)
         test_predictions = svm.predict(test_features)
         print_matrices(test_labels, test_predictions)
 
