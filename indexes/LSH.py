@@ -12,7 +12,8 @@ import pdb
 import operator
 from collections import OrderedDict
 from collections import defaultdict
-
+import os
+import json
 
 class LSH:
 
@@ -49,7 +50,11 @@ class LSH:
     def cal_l2_distance(self, query, target):
         return np.linalg.norm(query - target)
     
-    def get_top_t(self, query, t):
+    def get_top_t(self, query, t, index_file_path=""):
+        if(len(index_file_path) > 0):
+            if os.path.isfile(index_file_path):
+                with open(index_file_path, 'r') as index_json:
+                    self.finalfile = json.load(index_json)
         retrieval = set()
         n_buckets = 0
         n_candidates = 0
@@ -79,6 +84,7 @@ class LSH:
             if (permLevel == self.k):
                 break
         retrieval = list(retrieval)
+        false_pos = len(retrieval)-t
         datavectors = self.finalfile["datavectors"]
         distancedict = {}
         for id in retrieval:
@@ -88,5 +94,19 @@ class LSH:
         for k, v in sorted_d.items():
             sorted_dict[k] = v
         sorted_list = list(sorted_dict.keys())
-        return sorted_list[:t]
+        labels = list(datavectors.keys())
+        data = list(datavectors.values())
+        distances = np.array([self.cal_l2_distance(query, data[i])
+                              for i in range(len(labels))])
+        ans = np.argsort(distances)[:t]
+        expected = [labels[x] for x in ans]
+        miss = 0
+        index_results = sorted_list[:t]
+        for x in expected:
+            if x not in index_results:
+                miss += 1
+        print("Number of buckets searched: "+str(n_buckets))
+        print("False positive: " + str(false_pos))
+        print("Miss: "+str(miss))
+        return index_results
             

@@ -9,7 +9,7 @@ import numpy as np
 import featureLoader
 import imageLoader
 import modelFactory
-from indexes.LSH import LSH
+from tech.LSH import LSH
 from arg_parser_util import Parser
 import latentFeatureGenerator
 import os
@@ -39,7 +39,6 @@ if data is not None:
             index.restore(json.load(index_json),args.l,args.khash)
     else:    
         index.populate_index(labels, data)
-        pdb.set_trace()
         index_json = json.dumps(index.finalfile, indent=4)
         if os.path.isfile(file_path):
             os.remove(file_path)
