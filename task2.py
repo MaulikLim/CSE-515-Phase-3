@@ -2,6 +2,7 @@ from classifier.svm import SVM
 from sklearn.preprocessing import MinMaxScaler
 from classifiers.DecisionTree import DecisionTree
 from featureGenerator import save_features_to_json
+from classifier.ppr import Personalised_Page_Rank
 import imageLoader
 import modelFactory
 import argparse
@@ -61,6 +62,19 @@ if data is not None:
     classifier = args.classifier.lower()
     if classifier == 'ppr':
         # Train PPR
+        # Train PPR
+        types_of_labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
+                           "9", "10","11","12","13","14","15","16","17","18","19","20","21","22","23",
+                           "24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40"]
+        ppr = Personalised_Page_Rank(20, types_of_labels)
+        ppr.fit(features, labels)
+        test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
+        test_features = test_data[0]
+        test_labels = [x.split("-")[1] for x in test_data[1]]
+        test_predicted_labels = ppr.predict(test_features, test_labels)
+        print(ppr.accuracy(test_predicted_labels, test_labels))
+        # for test_image,test_predicted_label in test_predicted_labels.items():
+        #     print(test_image,"->",test_predicted_label)
         pass
     elif classifier == 'svm':
         # Train SVM
