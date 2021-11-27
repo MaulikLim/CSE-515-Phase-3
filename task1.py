@@ -40,8 +40,7 @@ if data is not None:
     # k=args.k
     if classifier == 'ppr':
         # Train PPR
-        types_of_labels = ["cc", "jitter", "neg", "con", "emboss", "noise01", "noise02", "original", "poster", "rot",
-                           "smooth", "stipple"]
+        types_of_labels = list(set(labels))
         ppr = Personalised_Page_Rank(20, types_of_labels)
         ppr.fit(features, labels)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
