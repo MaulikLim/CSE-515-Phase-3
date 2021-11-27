@@ -40,15 +40,15 @@ if data is not None:
     # k=args.k
     if classifier == 'ppr':
         # Train PPR
-        types_of_labels = ["cc", "jitter", "neg", "con", "emboss", "noise01", "noise02", "original", "poster", "rot",
-                           "smooth", "stipple"]
+        types_of_labels = list(set(labels))
         ppr = Personalised_Page_Rank(20, types_of_labels)
         ppr.fit(features, labels)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [x.split("-")[1] for x in test_data[1]]
         test_predicted_labels = ppr.predict(test_features, test_labels)
-        print(ppr.accuracy(test_predicted_labels, test_labels))
+        # print(ppr.accuracy(test_predicted_labels, test_labels))
+        print_matrices(test_labels, np.array(test_predicted_labels))
         # for test_image,test_predicted_label in test_predicted_labels.items():
         #     print(test_image,"->",test_predicted_label)
 
@@ -92,4 +92,4 @@ if data is not None:
         predict_labels = []
         for i, feature in enumerate(test_features):
             predict_labels.append(reverse_map[dt.predict(feature)])
-        print_matrices(test_labels, predict_labels)
+        print_matrices(test_labels, np.array(predict_labels))
