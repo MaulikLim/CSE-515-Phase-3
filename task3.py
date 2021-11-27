@@ -63,15 +63,15 @@ if data is not None:
     classifier = args.classifier.lower()
     if classifier == 'ppr':
         
-        types_of_labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
-                           "9", "10"]
+        types_of_labels = list(set(labels))
         ppr = Personalised_Page_Rank(20, types_of_labels)
         ppr.fit(features, labels)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
-        test_labels = [x.split("-")[1] for x in test_data[1]]
+        test_labels = [x.split("-")[3].split('.')[0] for x in test_data[1]]
         test_predicted_labels = ppr.predict(test_features, test_labels)
-        print(ppr.accuracy(test_predicted_labels, test_labels))
+        # print(ppr.accuracy(test_predicted_labels, test_labels))
+        print_matrices(test_labels, np.array(test_predicted_labels))
         # for test_image,test_predicted_label in test_predicted_labels.items():
         #     print(test_image,"->",test_predicted_label)
         pass
@@ -88,7 +88,6 @@ if data is not None:
         test_features = min_max_scalar.transform(test_features)
         test_predictions = svm.predict(test_features)
         print_matrices(test_labels, test_predictions)
-
     else:
         # Train decision tree
         label_map = {}
