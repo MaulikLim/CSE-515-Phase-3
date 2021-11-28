@@ -18,10 +18,10 @@ class Personalised_Page_Rank:
 
     def predict(self,test_images_features,test_images_labels):
         self.all_image_features = self.training_features
-        print(len(self.training_features))
+        # print(len(self.training_features))
         self.predicted_labels=['']*len(test_images_labels)
         all_indices=np.arange(1,len(test_images_labels)+1,1)
-        print("all indices type",type(all_indices))
+        # print("all indices type",type(all_indices))
         for each_test_image in test_images_features:
             self.all_image_features = np.append(self.all_image_features,[each_test_image],axis=0)
         
@@ -32,25 +32,25 @@ class Personalised_Page_Rank:
             self.seed_matrix = self.generate_seedMatrix(input_images,len(self.all_image_features))
             temp_page_rank = self.pageRank(self.transition_matrix,0.85,self.seed_matrix)
             test_page_rank = temp_page_rank[len(self.training_features):]
-            print("len of test page rank",len(test_page_rank))
+            # print("len of test page rank",len(test_page_rank))
             numpyPage_Rank=np.array(test_page_rank)
             reshaped = numpyPage_Rank.reshape(numpyPage_Rank.shape[0],)
             
             reverse_indices = np.argsort(reshaped)
-            print("reversed indices type",type(reverse_indices))
+            # print("reversed indices type",type(reverse_indices))
             getm=len(test_images_features)//len(self.types_of_labels)
             delete_indices = reverse_indices[::-1][:getm]
-            print(delete_indices+len(self.training_features))
-            print(len(self.all_image_features))
+            # print(delete_indices+len(self.training_features))
+            # print(len(self.all_image_features))
             for i in delete_indices:
-                print(i,"type=",type(i), all_indices[i], len(self.predicted_labels))
+                # print(i,"type=",type(i), all_indices[i], len(self.predicted_labels))
                 self.predicted_labels[all_indices[i]-1]=self.types_of_labels[label_index]
                 # all_indices=np.delete(all_indices,i)
                 # self.all_image_features=np.delete(self.all_image_features,(len(self.training_features)+i),axis=0)
             all_indices=np.delete(all_indices,[delete_indices])
             self.all_image_features=np.delete(self.all_image_features,[delete_indices+len(self.training_features)],axis=0)
-            print("size of all images",len(self.all_image_features),"length of all indices",len(all_indices))
-        print(all_indices)
+            # print("size of all images",len(self.all_image_features),"length of all indices",len(all_indices))
+        # print(all_indices)
         for x in all_indices:
             self.predicted_labels[x-1]=self.types_of_labels[len(self.types_of_labels)-1]
 
@@ -187,15 +187,15 @@ class Personalised_Page_Rank:
         # for key, val in test_predicted_dict.items():
         #     if val==test_images_labels[key]:
         #         count+=1
-        print("predicted length=",len(test_predicted_labels),"length of test labels=",len(test_images_labels))
-        print(test_predicted_labels)
-        print(test_images_labels)
+        # print("predicted length=",len(test_predicted_labels),"length of test labels=",len(test_images_labels))
+        # print(test_predicted_labels)
+        # print(test_images_labels)
         for i in range(len(test_predicted_labels)):
-            print(test_predicted_labels[i],"->",test_images_labels[i])
+            # print(test_predicted_labels[i],"->",test_images_labels[i])
             if test_predicted_labels[i] == test_images_labels[i]:
                 count+=1
-        print("count",count)
-        print("len of test labels", len(test_images_labels))
+        # print("count",count)
+        # print("len of test labels", len(test_images_labels))
         return (count*100)/len(test_images_labels)
 
 
