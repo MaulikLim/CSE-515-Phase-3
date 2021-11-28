@@ -30,12 +30,6 @@ def getImageFeatureLSH(index_file_name, index_folder_path, query_image_name):
     k = int(cmp[3])
     return latentFeatureGenerator.compute_latent_feature(index_folder_path, query_image_name, feature_model, k)
 
-def getLSHObj(index_file_name):
-    cmp = index_file_name.split("_")
-    l = cmp[5]
-    k = int(cmp[4])
-    return LSH(l,k)
-
 def take_feedback(features, names):
     global min_max_scalar
     relavent_images = input("Which images do you find relavent? (e.g. '1,4,5')\n")
@@ -93,7 +87,8 @@ def take_feedback(features, names):
 if index_file_name.startswith("index_va"):
     # call task 5
     query = getImageFeature(index_file_name, index_folder_path, query_image)
-    result = va_utility.get_top_t(index_folder_path, index_file_name, query, t)
+    feature_model = index_file_name.split("_")[-3]
+    result = va_utility.get_top_t(index_folder_path, index_file_name, query, t,feature_model)
     features = []
     labels = []
     for res in result:
@@ -110,7 +105,7 @@ if index_file_name.startswith("index_va"):
         if input("Do you want to provide feedback? Y/N\n") == 'N':
             break
         classifier, model = take_feedback(features, labels)
-        result = va_utility.get_top_t(index_folder_path, index_file_name, query, j * 10 * t)
+        result = va_utility.get_top_t(index_folder_path, index_file_name, query, j * 10 * t, feature_model)
         # print(np.array(result)[:,0])
         features = []
         labels = []

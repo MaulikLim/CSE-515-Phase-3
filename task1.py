@@ -14,9 +14,8 @@ import featureLoader
 import latentFeatureGenerator
 from metrics_utils import print_matrices
 from sklearn import tree
-
+import math
 from arg_parser_util import Parser
-from tech.PCA import PCA
 from utilities import print_semantics_sub, print_semantics_type
 
 # parser = argparse.ArgumentParser(description="Task 1")
@@ -69,7 +68,7 @@ if data is not None:
         test_labels = [label_map[x.split("-")[1]] for x in test_data[1]]
         test_features = min_max_scalar.transform(test_features)
         test_predictions = svm.predict(test_features)
-        print(list(label_map.keys()))
+        # print(list(label_map.keys()))
         print_matrices(test_labels, test_predictions)
 
     else:
@@ -81,8 +80,7 @@ if data is not None:
             label_map[label] = i
             reverse_map[i] = label
         labels = [label_map[x] for x in labels]
-
-        dt = DecisionTree(features, np.array(labels))
+        dt = DecisionTree(features, np.array(labels),int(3*math.log(len(labels))))
         dt.train()
 
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)

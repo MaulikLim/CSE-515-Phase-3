@@ -10,9 +10,9 @@ class Node:
 
 class DecisionTree:
     
-    def __init__(self, features, labels):
+    def __init__(self, features, labels, max_depth=15):
         self.data = np.c_[features,labels]
-        self.max_depth = 15
+        self.max_depth = max_depth
         self.head = None
         self.classes = len(set(labels))
     

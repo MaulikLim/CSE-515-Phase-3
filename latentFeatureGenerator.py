@@ -1,5 +1,5 @@
 import featureLoader, featureGenerator
-from tech.PCA import PCA
+from tech.SVD import SVD
 import numpy as np
 import os
 import imageLoader
@@ -15,11 +15,11 @@ def compute_latent_features(folder_path, feature_model, k):
     if k<0:
         return features,labels
     if latent_features_descriptors is None:
-        pca = PCA(k)
+        pca = SVD(k)
         latent_features_descriptors = [pca.compute_semantics(features), labels.tolist()]
         featureGenerator.save_features_to_json(folder_path, latent_features_descriptors, file_name)
     if latent_features_descriptors is not None:
-        return np.matmul(features, np.array(latent_features_descriptors[0][0])), labels
+        return np.matmul(features, np.array(latent_features_descriptors[0]).T), labels
     return [None, None]
 
 def compute_latent_feature(folder_path, image_path, feature_model, k):
@@ -32,9 +32,9 @@ def compute_latent_feature(folder_path, image_path, feature_model, k):
         data = featureLoader.load_features_for_model(folder_path, feature_model)
         labels = data[0]
         features = data[1]
-        pca = PCA(k)
+        pca = SVD(k)
         latent_features_descriptors = [pca.compute_semantics(features), labels.tolist()]
         featureGenerator.save_features_to_json(folder_path, latent_features_descriptors, file_name)
     if latent_features_descriptors is not None:
-        return np.matmul(query_feature, np.array(latent_features_descriptors[0][0]))
+        return np.matmul(query_feature, np.array(latent_features_descriptors[0]).T)
     return None

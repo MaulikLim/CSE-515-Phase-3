@@ -12,9 +12,9 @@ import pdb
 import featureLoader
 import latentFeatureGenerator;
 from metrics_utils import print_matrices
-
-from tech.PCA import PCA
+import math
 from utilities import print_semantics_sub, print_semantics_type
+import time
 
 parser = argparse.ArgumentParser(description="Task 2")
 parser.add_argument(
@@ -98,8 +98,8 @@ if data is not None:
             label_map[label] = i
             reverse_map[i] = label
         labels = [label_map[x] for x in labels]
-
-        dt = DecisionTree(features,np.array(labels))
+        start_time = time.time()
+        dt = DecisionTree(features,np.array(labels), int(3*math.log(len(labels))))
         dt.train()
 
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
@@ -110,6 +110,7 @@ if data is not None:
         for i,feature in enumerate(test_features):
             predict_labels.append(reverse_map[dt.predict(feature)])
         print_matrices(test_labels, np.array(predict_labels))
+        print("--- %s seconds ---" % (time.time() - start_time))
         pass
     # load query data to which we are supposed to assign labels
     # query_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
