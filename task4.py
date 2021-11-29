@@ -46,10 +46,4 @@ if data is not None:
         if os.path.isfile(file_path):
             os.remove(file_path)
         with open(file_path, "w") as out_file:
-<<<<<<< HEAD
             out_file.write(index_json)
-=======
-            out_file.write(index_json)
-    # query = modelFactory.get_model(args.feature_model).compute_features(imageLoader.load_image(args.query_path))
-    # print(index.get_top_t(query, args.top_t))
->>>>>>> 10d9020c83765f60d45eaed4fa71870359a6f359
