@@ -41,9 +41,9 @@ class LSH:
             label_data[label] = data.tolist()
         self.finalfile["datavectors"] = label_data
         self.finalfile["lshdata"] = savefile
-        data_size = sys.getsizeof(self.labels) + data.nbytes
+        data_size = labels.nbytes + data.nbytes
         print("Size of original data: " + str(data_size))
-        print("Total index size: " + str(savefile.nbytes))
+        print("Total index size: " + str(np.array(savefile).nbytes))
     
     def restore(self, index_json,l,k):
         self.l = l
@@ -123,4 +123,3 @@ class LSH:
         print("False positive: " + str(false_pos))
         print("Miss: "+str(miss))
         return index_results
-            
