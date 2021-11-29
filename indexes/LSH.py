@@ -27,6 +27,7 @@ class LSH:
         self.data = data
         savefile = []
         num_rows, num_cols = data.shape
+        countbytes = 0
         for i in range(self.L):
             randv = np.random.randn(num_cols, self.k)
             binary = data.dot(randv) >= 0
@@ -35,6 +36,7 @@ class LSH:
                 binaryrepr = (str.encode(''.join(str(binaryArr))).decode("utf-8"))
                 table[binaryrepr[1:-1]].append(labl)
             savetable = {"randomvectors" : randv.tolist(), "table" : table}
+            countbytes += sys.getsizeof(table) + randv.nbytes
             savefile.append(savetable)
         label_data = {}
         for label,data in zip(labels, data):
@@ -43,7 +45,7 @@ class LSH:
         self.finalfile["lshdata"] = savefile
         data_size = labels.nbytes + data.nbytes
         print("Size of original data: " + str(data_size))
-        print("Total index size: " + str(np.array(savefile).nbytes))
+        print("Total index size: " + str(countbytes + sys.getsizeof(label_data)))
     
     def restore(self, index_json,l,k):
         self.l = l

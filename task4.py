@@ -20,11 +20,13 @@ parser = Parser("Task 4")
 parser.add_args("-fp", "--folder_path", str, True)
 parser.add_args("-f", "--feature_model", str, True)
 parser.add_args("-l", "--l", int, True)
-parser.add_args("-k", "--k", int, True)
+parser.add_args("-k", "--k", str, True)
 parser.add_args("-kh", "--khash", int, True)
 args = parser.parse_args()
-
-data, labels = latentFeatureGenerator.compute_latent_features(args.folder_path, args.feature_model, args.k)
+k = -1
+if args.k != 'all':
+    k = int(args.k)
+data, labels = latentFeatureGenerator.compute_latent_features(args.folder_path, args.feature_model, k)
 if data is not None:
     file_name = 'index_lsh_' + args.feature_model+'_'+ str(args.k) + '_' + str(args.khash) + '_' + str(args.l) + '.json'
     file_path = os.path.join(args.folder_path, file_name)
