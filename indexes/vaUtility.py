@@ -33,7 +33,7 @@ def load_va_index(file_path):
     index.restore(index_json)
     return index
 
-def get_top_t(folder_path, file_name, query, t):
+def get_top_t(folder_path, file_name, query, t, feature_model):
     file_path = os.path.join(folder_path, file_name)
     index = load_va_index(file_path)
-    return index.compare_top_k(query, t)
+    return index.compare_top_k(query, t, feature_model)

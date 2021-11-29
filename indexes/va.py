@@ -66,9 +66,11 @@ class VA:
         #     partition += 1
         # return partition
 
-    def cal_lower_bound(self, query_vector, query_low_dim, target_low_dim):
+    def cal_lower_bound(self, query_vector, query_low_dim, target_low_dim, feature_model):
         arr = np.array([self.cal_dim_lower_bound(query_vector[x], query_low_dim[x],
                                                  target_low_dim[x], self.min_values[x], self.max_values[x]) for x in range(len(query_vector))])
+        if feature_model == 'cm':
+            return np.sum(np.absolute(arr))
         return np.linalg.norm(arr)
 
     def cal_dim_lower_bound(self, query_dim_value, query_dim_part, target_low_dim_part, dim_min_value, dim_max_value):
@@ -82,11 +84,13 @@ class VA:
         else:
             return temp - query_dim_value
 
-    def cal_l2_distance(self, query, target):
+    def cal_distance(self, query, target, feature_model):
+        if feature_model == 'cm':
+            return np.sum(np.absolute(query - target))
         return np.linalg.norm(query - target)
 
-    def get_top_k(self, query, k):
-        distances = np.array([self.cal_l2_distance(query, self.data[i])
+    def get_top_k(self, query, k, feature_model):
+        distances = np.array([self.cal_distance(query, self.data[i], feature_model)
                               for i in range(len(self.labels))])
         ans = np.argsort(distances)[:k]
         return [self.labels[x] for x in ans]
@@ -97,7 +101,7 @@ class VA:
             encoding += '#' + str(int(x))
         return encoding
 
-    def get_top_k_low_dim(self, query, k, actual_results):
+    def get_top_k_low_dim(self, query, k, actual_results, feature_model):
         query_low_dim = self.get_lower_dim_rep(query)
         result = []
         candidates = 0
@@ -108,25 +112,25 @@ class VA:
                 if self.labels[i] not in actual_results:
                     false_pos += 1
                 heapq.heappush(
-                    result, (-self.cal_l2_distance(query, self.data[i]), self.labels[i], self.data[i]))
+                    result, (-self.cal_distance(query, self.data[i], feature_model), self.labels[i], self.data[i]))
                 candidates += 1
                 buckets.add(self.bucket_to_string(self.lower_dim_data[i]))
             else:
                 curr_largest = result[0]
                 lower_bound = self.cal_lower_bound(
-                    query, query_low_dim, self.lower_dim_data[i])
+                    query, query_low_dim, self.lower_dim_data[i], feature_model)
                 if lower_bound < -curr_largest[0]:
                     buckets.add(self.bucket_to_string(self.lower_dim_data[i]))
                     candidates += 1
                     if self.labels[i] not in actual_results:
                         false_pos += 1
-                    dist = self.cal_l2_distance(query, self.data[i])
+                    dist = self.cal_distance(query, self.data[i], feature_model)
                     if dist < -curr_largest[0]:
                         heapq.heappop(result)
                         heapq.heappush(result, (-dist, self.labels[i], self.data[i]))
         print("Number of buckets searched: "+str(len(buckets)))
         print("Number of unique and overall images considered: " + str(candidates))
-        print("False positive: " + str(false_pos))
+        print("False positive rate: " + str(false_pos/candidates))
         # print(result)
         result = [(result[x][1], -result[x][0], result[x][2])
                   for x in range(-1, -len(result)-1, -1)]
@@ -135,11 +139,11 @@ class VA:
         for x in actual_results:
             if x not in index_results:
                 miss += 1
-        print("Miss: "+str(miss))
+        print("Miss rate: "+str(miss/len(actual_results)))
         result.sort(key=lambda x:x[1])
         return result
 
-    def compare_top_k(self, query, k):
-        actual_results = self.get_top_k(query, k)
+    def compare_top_k(self, query, k, feature_model):
+        actual_results = self.get_top_k(query, k, feature_model)
         # print(actual_results)
-        return self.get_top_k_low_dim(query, k, actual_results)
+        return self.get_top_k_low_dim(query, k, actual_results, feature_model)

@@ -3,6 +3,8 @@ from classifier.svm import SVM
 from classifiers.DecisionTree import DecisionTree
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+from featureLoader import load_json
+from indexes.LSH import LSH
 import indexes.vaUtility as va_utility
 import latentFeatureGenerator
 import imageLoader
@@ -11,6 +13,10 @@ rel_imgs = {}
 irrel_imgs = {}
 min_max_scalar = None
 
+index_folder_path = input("Index folder path\n")
+index_file_name = input("Index file name\n")
+query_image = input("Query Image path\n")
+t = int(input("t\n"))
 
 def getImageFeature(index_file_name, index_folder_path, query_image_name):
     cmp = index_file_name.split("_")
@@ -18,6 +24,11 @@ def getImageFeature(index_file_name, index_folder_path, query_image_name):
     k = int(cmp[-2])
     return latentFeatureGenerator.compute_latent_feature(index_folder_path, query_image_name, feature_model, k)
 
+def getImageFeatureLSH(index_file_name, index_folder_path, query_image_name):
+    cmp = index_file_name.split("_")
+    feature_model = cmp[2]
+    k = int(cmp[3])
+    return latentFeatureGenerator.compute_latent_feature(index_folder_path, query_image_name, feature_model, k)
 
 def take_feedback(features, names):
     global min_max_scalar
@@ -73,15 +84,11 @@ def take_feedback(features, names):
         svm.train(np.array(features), np.array(training_labels), 2, 10000, 1e-3, 1e-5, verbose=False)
         return svm, model
 
-
-index_folder_path = input("Index folder path\n")
-index_file_name = input("Index file name\n")
-query_image = input("Query Image path\n")
-t = int(input("t\n"))
 if index_file_name.startswith("index_va"):
     # call task 5
     query = getImageFeature(index_file_name, index_folder_path, query_image)
-    result = va_utility.get_top_t(index_folder_path, index_file_name, query, t)
+    feature_model = index_file_name.split("_")[-3]
+    result = va_utility.get_top_t(index_folder_path, index_file_name, query, t,feature_model)
     features = []
     labels = []
     for res in result:
@@ -95,56 +102,112 @@ if index_file_name.startswith("index_va"):
         i += 1
     j = 1
     while True:
+        if input("Do you want to provide feedback? Y/N\n") == 'N':
+            break
         classifier, model = take_feedback(features, labels)
-        result = va_utility.get_top_t(index_folder_path, index_file_name, query, j * 10 * t)
+        result = va_utility.get_top_t(index_folder_path, index_file_name, query, j * 10 * t, feature_model)
         # print(np.array(result)[:,0])
         features = []
         labels = []
         # call task 5 again with 5*t
         # classify the result using above classifier and output top t images
         new_result = []
+        irrel_predictions = []
+        irrel_predictions_features = []
         for res in result:
             lab = 0
             if model == 'DT':
                 lab = classifier.predict(res[2])
             else:
                 lab = classifier.predict(min_max_scalar.transform([res[2]]))
-                print(lab)
+                # print(lab)
             if lab == 1:
                 features.append(res[2])
                 labels.append(res[0])
                 new_result.append(res[0])
                 if len(new_result) == t:
                     break
+            else:
+                irrel_predictions.append(res[0])
+                irrel_predictions_features.append(res[2])
         # show new results
         i = 1
         for img in new_result:
             print(str(i) + ".", img)
             imageLoader.show_image(os.path.join(index_folder_path, img))
             i += 1
-        quit = input("Do you want to continue? Y/N\n")
-        if quit == 'N':
-            break
+        for j,img in enumerate(irrel_predictions):
+            if i>t:
+                break
+            print(str(i) + ".", img)
+            labels.append(img)
+            features.append(irrel_predictions_features[j])
+            imageLoader.show_image(os.path.join(index_folder_path, img))
+            i+=1
         j += 1
 else:
-    query = getImageFeature(index_file_name, index_folder_path, query_image)
+    query = getImageFeatureLSH(index_file_name, index_folder_path, query_image)
+    cmp = index_file_name.split("_")
+    l = cmp[5]
+    k = int(cmp[4])
+    lsh = LSH(l,k)
+    lsh_index_file = load_json(os.path.join(index_folder_path, index_file_name))
+    lsh.restore(lsh_index_file,l,k)
     # change below lines for lsh
-    result = va_utility.get_top_t(index_folder_path, index_file_name, query, t)
+    result = lsh.get_top_t( query, t)
     features = []
     labels = []
     for res in result:
-        features.append(res[0])
-        labels.append(res[2])
+        features.append(lsh_index_file["datavectors"][res])
+        labels.append(res)
     # show images in labels list
-    classifier = take_feedback(features)
-    result = va_utility.get_top_t(index_file_name, query, 5 * t)
-    # call task 5 again with 5*t
-    # classify the result using above classifier and output top t images
-    new_result = []
-    for res in result:
-        lab = classifier.predict(res[0])
-        if lab == 1:
-            new_result.append(res[2])
-            if len(new_result) == t:
+    i = 1
+    for img in labels:
+        print(str(i) + ".", img)
+        imageLoader.show_image(os.path.join(index_folder_path, img))
+        i += 1
+    j = 1
+    while True:
+        if input("Do you want to provide feedback? Y/N\n") == 'N':
+            break
+        classifier, model = take_feedback(features, labels)
+        result = lsh.get_top_t( query, j*10*t)
+        # print(np.array(result)[:,0])
+        features = []
+        labels = []
+        # call task 5 again with 5*t
+        # classify the result using above classifier and output top t images
+        new_result = []
+        irrel_predictions = []
+        irrel_predictions_features = []
+        for res in result:
+            lab = 0
+            if model == 'DT':
+                lab = classifier.predict(lsh_index_file["datavectors"][res])
+            else:
+                lab = classifier.predict(min_max_scalar.transform([lsh_index_file["datavectors"][res]]))
+                # print(lab)
+            if lab == 1:
+                features.append(lsh_index_file["datavectors"][res])
+                labels.append(res)
+                new_result.append(res)
+                if len(new_result) == t:
+                    break
+            else:
+                irrel_predictions.append(res)
+                irrel_predictions_features.append(lsh_index_file["datavectors"][res])
+        # show new results
+        i = 1
+        for img in new_result:
+            print(str(i) + ".", img)
+            imageLoader.show_image(os.path.join(index_folder_path, img))
+            i += 1
+        for j,img in enumerate(irrel_predictions):
+            if i>t:
                 break
-    # show new results
+            print(str(i) + ".", img)
+            labels.append(img)
+            features.append(irrel_predictions_features[j])
+            imageLoader.show_image(os.path.join(index_folder_path, img))
+            i+=1
+        j += 1

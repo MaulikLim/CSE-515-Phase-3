@@ -8,8 +8,8 @@ Created on Fri Nov 26 10:32:07 2021
 import numpy as np
 import featureLoader
 import imageLoader
+from indexes.LSH import LSH
 import modelFactory
-from tech.LSH import LSH
 from arg_parser_util import Parser
 import latentFeatureGenerator
 import os
@@ -19,17 +19,22 @@ import pdb
 parser = Parser("Task 4")
 parser.add_args("-fp", "--folder_path", str, True)
 parser.add_args("-f", "--feature_model", str, True)
+<<<<<<< HEAD
+=======
+# parser.add_args("-qp", "--query_path", str, True)
+>>>>>>> 10d9020c83765f60d45eaed4fa71870359a6f359
 parser.add_args("-l", "--l", int, True)
-parser.add_args("-k", "--k", str, True)
+parser.add_args("-k", "--k", int, True)
 parser.add_args("-kh", "--khash", int, True)
+<<<<<<< HEAD
+=======
+# parser.add_args("-t", "--top_t", int, True)
+>>>>>>> 10d9020c83765f60d45eaed4fa71870359a6f359
 args = parser.parse_args()
 
-k = -1
-if args.k != 'all':
-    k = int(args.k)
 data, labels = latentFeatureGenerator.compute_latent_features(args.folder_path, args.feature_model, k)
 if data is not None:
-    file_name = 'index_lsh_' + args.feature_model + '_' + str(args.khash) + '_' + str(args.l) + '.json'
+    file_name = 'index_lsh_' + args.feature_model+'_'+ str(k) + '_' + str(args.khash) + '_' + str(args.l) + '.json'
     file_path = os.path.join(args.folder_path, file_name)
     index = LSH(args.l,args.khash)
     if os.path.isfile(file_path):
@@ -41,4 +46,10 @@ if data is not None:
         if os.path.isfile(file_path):
             os.remove(file_path)
         with open(file_path, "w") as out_file:
+<<<<<<< HEAD
             out_file.write(index_json)
+=======
+            out_file.write(index_json)
+    # query = modelFactory.get_model(args.feature_model).compute_features(imageLoader.load_image(args.query_path))
+    # print(index.get_top_t(query, args.top_t))
+>>>>>>> 10d9020c83765f60d45eaed4fa71870359a6f359

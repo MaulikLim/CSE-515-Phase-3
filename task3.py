@@ -1,3 +1,4 @@
+import math
 from sklearn.preprocessing import MinMaxScaler
 
 from classifier.svm import SVM
@@ -14,7 +15,6 @@ import featureLoader
 import latentFeatureGenerator
 from metrics_utils import print_matrices
 
-from tech.PCA import PCA
 from utilities import print_semantics_sub, print_semantics_type
 
 parser = argparse.ArgumentParser(description="Task 3")
@@ -98,7 +98,7 @@ if data is not None:
             reverse_map[i] = label
         labels = [label_map[x] for x in labels]
 
-        dt = DecisionTree(features,np.array(labels))
+        dt = DecisionTree(features,np.array(labels),int(3*math.log(len(labels))))
         dt.train()
 
         # load query data to which we are supposed to assign labels
