@@ -24,7 +24,8 @@ class DecisionTree:
         r_mat_p = [np.sum(data[:,-1]==c) for c in range(self.classes)]
         cur_gini = self.getGiniWeasly(r_mat_p,size)
         index, val = None, None
-        for ind in range(len(data[0])-1):
+        inds = np.random.randint(len(data[0])-1,size = len(data[0])//4)
+        for ind in inds:
             lim, cl = zip(*sorted(zip(data[:,ind],data[:,-1])))
             l_mat = [0] * self.classes
             r_mat = r_mat_p.copy()
@@ -46,7 +47,7 @@ class DecisionTree:
     def buildTree(self, data, d):
         node = Node()
         node.prediction = np.argmax([np.sum(data[:,-1]==i) for i in range(self.classes)])
-        if d<self.max_depth:
+        if d<self.max_depth and len(data)>1:
             index, val = self.getSplit(data)
             if index is not None:
                 node.val = val
