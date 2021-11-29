@@ -55,7 +55,7 @@ class LSH:
     def cal_l2_distance(self, query, target):
         return np.linalg.norm(query - target)
     
-    def cal_distance(self, query, target, feature_model):
+    def cal_distance(self, query, target):
             return np.sum(np.absolute(query - target))
 
     def get_top_t(self, query, t, index_file_path=""):
@@ -94,7 +94,6 @@ class LSH:
         false_pos = (len(retrieval)-t)/len(retrieval)
         datavectors = self.finalfile["datavectors"]
         distancedict = {}
-        pdb.set_trace()
         for id in retrieval:
             if(index_file_path.split("index_lsh_")[1][:2] != "cm"):
                 distancedict[id] = self.cal_l2_distance(query, np.array(datavectors[id]))
@@ -122,6 +121,6 @@ class LSH:
                 miss += 1
         print("Number of unique and overall images considered: " + str(len(retrieval)))
         print("Number of buckets searched: "+str(buckets))
-        print("False positive: " + str(false_pos))
+        print("False positive: " + str(false_pos*100))
         print("Miss: "+str(miss))
         return index_results
