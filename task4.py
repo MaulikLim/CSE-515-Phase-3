@@ -19,11 +19,9 @@ import pdb
 parser = Parser("Task 4")
 parser.add_args("-fp", "--folder_path", str, True)
 parser.add_args("-f", "--feature_model", str, True)
-parser.add_args("-qp", "--query_path", str, True)
 parser.add_args("-l", "--l", int, True)
 parser.add_args("-k", "--k", str, True)
 parser.add_args("-kh", "--khash", int, True)
-parser.add_args("-t", "--top_t", int, True)
 args = parser.parse_args()
 
 k = -1
@@ -44,5 +42,3 @@ if data is not None:
             os.remove(file_path)
         with open(file_path, "w") as out_file:
             out_file.write(index_json)
-    query = modelFactory.get_model(args.feature_model).compute_features(imageLoader.load_image(args.query_path))
-    index.get_top_t(query, args.top_t)
