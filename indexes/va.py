@@ -24,7 +24,7 @@ class VA:
         self.min_values, self.max_values = self.get_min_max()
         self.lower_dim_data = self.transform_data()
         # print(self.lower_dim_data)
-        data_size = sys.getsizeof(self.labels) + data.nbytes
+        data_size = self.labels.nbytes + self.data.nbytes
         print("Size of original data: " + str(data_size))
         lower_dim_size = self.b * len(self.data) * len(self.data[0]) / 8
         print("Size of lower dim data: " + str(lower_dim_size))
