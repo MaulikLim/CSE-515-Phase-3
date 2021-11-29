@@ -19,22 +19,14 @@ import pdb
 parser = Parser("Task 4")
 parser.add_args("-fp", "--folder_path", str, True)
 parser.add_args("-f", "--feature_model", str, True)
-<<<<<<< HEAD
-=======
-# parser.add_args("-qp", "--query_path", str, True)
->>>>>>> 10d9020c83765f60d45eaed4fa71870359a6f359
 parser.add_args("-l", "--l", int, True)
 parser.add_args("-k", "--k", int, True)
 parser.add_args("-kh", "--khash", int, True)
-<<<<<<< HEAD
-=======
-# parser.add_args("-t", "--top_t", int, True)
->>>>>>> 10d9020c83765f60d45eaed4fa71870359a6f359
 args = parser.parse_args()
 
-data, labels = latentFeatureGenerator.compute_latent_features(args.folder_path, args.feature_model, k)
+data, labels = latentFeatureGenerator.compute_latent_features(args.folder_path, args.feature_model, args.k)
 if data is not None:
-    file_name = 'index_lsh_' + args.feature_model+'_'+ str(k) + '_' + str(args.khash) + '_' + str(args.l) + '.json'
+    file_name = 'index_lsh_' + args.feature_model+'_'+ str(args.k) + '_' + str(args.khash) + '_' + str(args.l) + '.json'
     file_path = os.path.join(args.folder_path, file_name)
     index = LSH(args.l,args.khash)
     if os.path.isfile(file_path):
