@@ -154,7 +154,7 @@ else:
     lsh_index_file = load_json(os.path.join(index_folder_path, index_file_name))
     lsh.restore(lsh_index_file,l,k)
     # change below lines for lsh
-    result = lsh.get_top_t( query, t)
+    result = lsh.get_top_t( query, t,os.path.join(index_folder_path, index_file_name))
     features = []
     labels = []
     for res in result:
@@ -171,7 +171,7 @@ else:
         if input("Do you want to provide feedback? Y/N\n") == 'N':
             break
         classifier, model = take_feedback(features, labels)
-        result = lsh.get_top_t( query, j*10*t)
+        result = lsh.get_top_t( query, j*10*t, os.path.join(index_folder_path, index_file_name))
         # print(np.array(result)[:,0])
         features = []
         labels = []
