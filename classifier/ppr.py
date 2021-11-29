@@ -19,40 +19,40 @@ class Personalised_Page_Rank:
     def predict(self,test_images_features,test_images_labels):
         self.all_image_features = self.training_features
         # print(len(self.training_features))
-        self.predicted_labels=['']*len(test_images_labels)
-        all_indices=np.arange(1,len(test_images_labels)+1,1)
+        # self.predicted_labels=['']*len(test_images_labels)
+        # all_indices=np.arange(1,len(test_images_labels)+1,1)
         # print("all indices type",type(all_indices))
         for each_test_image in test_images_features:
             self.all_image_features = np.append(self.all_image_features,[each_test_image],axis=0)
         
-        for label_index in range(len(self.types_of_labels)-1):
-            self.similarity_matrix = self.createSimilarityMatrix(self.all_image_features)
-            self.transition_matrix = self.generate_transitionMatrix(self.similarity_matrix)
-            input_images = [i for i in range(len(self.training_labels)) if self.training_labels[i]==self.types_of_labels[label_index]]
-            self.seed_matrix = self.generate_seedMatrix(input_images,len(self.all_image_features))
-            temp_page_rank = self.pageRank(self.transition_matrix,0.85,self.seed_matrix)
-            test_page_rank = temp_page_rank[len(self.training_features):]
-            # print("len of test page rank",len(test_page_rank))
-            numpyPage_Rank=np.array(test_page_rank)
-            reshaped = numpyPage_Rank.reshape(numpyPage_Rank.shape[0],)
+        # for label_index in range(len(self.types_of_labels)-1):
+        #     self.similarity_matrix = self.createSimilarityMatrix(self.all_image_features)
+        #     self.transition_matrix = self.generate_transitionMatrix(self.similarity_matrix)
+        #     input_images = [i for i in range(len(self.training_labels)) if self.training_labels[i]==self.types_of_labels[label_index]]
+        #     self.seed_matrix = self.generate_seedMatrix(input_images,len(self.all_image_features))
+        #     temp_page_rank = self.pageRank(self.transition_matrix,0.85,self.seed_matrix)
+        #     test_page_rank = temp_page_rank[len(self.training_features):]
+        #     # print("len of test page rank",len(test_page_rank))
+        #     numpyPage_Rank=np.array(test_page_rank)
+        #     reshaped = numpyPage_Rank.reshape(numpyPage_Rank.shape[0],)
             
-            reverse_indices = np.argsort(reshaped)
-            # print("reversed indices type",type(reverse_indices))
-            getm=len(test_images_features)//len(self.types_of_labels)
-            delete_indices = reverse_indices[::-1][:getm]
-            # print(delete_indices+len(self.training_features))
-            # print(len(self.all_image_features))
-            for i in delete_indices:
-                # print(i,"type=",type(i), all_indices[i], len(self.predicted_labels))
-                self.predicted_labels[all_indices[i]-1]=self.types_of_labels[label_index]
-                # all_indices=np.delete(all_indices,i)
-                # self.all_image_features=np.delete(self.all_image_features,(len(self.training_features)+i),axis=0)
-            all_indices=np.delete(all_indices,[delete_indices])
-            self.all_image_features=np.delete(self.all_image_features,[delete_indices+len(self.training_features)],axis=0)
-            # print("size of all images",len(self.all_image_features),"length of all indices",len(all_indices))
-        # print(all_indices)
-        for x in all_indices:
-            self.predicted_labels[x-1]=self.types_of_labels[len(self.types_of_labels)-1]
+        #     reverse_indices = np.argsort(reshaped)
+        #     # print("reversed indices type",type(reverse_indices))
+        #     getm=len(test_images_features)//len(self.types_of_labels)
+        #     delete_indices = reverse_indices[::-1][:getm]
+        #     # print(delete_indices+len(self.training_features))
+        #     # print(len(self.all_image_features))
+        #     for i in delete_indices:
+        #         # print(i,"type=",type(i), all_indices[i], len(self.predicted_labels))
+        #         self.predicted_labels[all_indices[i]-1]=self.types_of_labels[label_index]
+        #         # all_indices=np.delete(all_indices,i)
+        #         # self.all_image_features=np.delete(self.all_image_features,(len(self.training_features)+i),axis=0)
+        #     all_indices=np.delete(all_indices,[delete_indices])
+        #     self.all_image_features=np.delete(self.all_image_features,[delete_indices+len(self.training_features)],axis=0)
+        #     # print("size of all images",len(self.all_image_features),"length of all indices",len(all_indices))
+        # # print(all_indices)
+        # for x in all_indices:
+        #     self.predicted_labels[x-1]=self.types_of_labels[len(self.types_of_labels)-1]
 
 
 
@@ -80,25 +80,25 @@ class Personalised_Page_Rank:
         # for j in range(len(test_images_features)):
         #     print(j,"->",self.predicted_labels[j],"original->",test_images_labels[j])
         
-        # self.similarity_matrix = self.createSimilarityMatrix(self.all_image_features)
-        # self.transition_matrix = self.generate_transitionMatrix(self.similarity_matrix)
+        self.similarity_matrix = self.createSimilarityMatrix(self.all_image_features)
+        self.transition_matrix = self.generate_transitionMatrix(self.similarity_matrix)
 	    
 	    
 
-        # output=[]
-        # for label in self.types_of_labels:
-	    #     #calculating page rank for that label
+        output=[]
+        for label in self.types_of_labels:
+	        #calculating page rank for that label
 
-        #     input_images = [i for i in range(len(self.training_labels)) if self.training_labels[i]==label]
-        #     self.seed_matrix = self.generate_seedMatrix(input_images,len(self.all_image_features),len(test_images_features))
-        #     output.append([label,self.pageRank(self.transition_matrix,0.15,self.seed_matrix)])
+            input_images = [i for i in range(len(self.training_labels)) if self.training_labels[i]==label]
+            self.seed_matrix = self.generate_seedMatrix(input_images,len(self.all_image_features))
+            output.append([label,self.pageRank(self.transition_matrix,0.15,self.seed_matrix)])
 	
-        # self.predicted_labels=[]
-        # for i in range(len(self.training_features),len(output[0][1])):
-	    #     compare=[]
-	    #     for item in output:
-		#         compare.append([item[0],i,item[1][i]])
-	    #     self.predicted_labels.append(sorted(compare,reverse=True,key = lambda x:x[2])[0][0])
+        self.predicted_labels=[]
+        for i in range(len(self.training_features),len(output[0][1])):
+	        compare=[]
+	        for item in output:
+		        compare.append([item[0],i,item[1][i]])
+	        self.predicted_labels.append(sorted(compare,reverse=True,key = lambda x:x[2])[0][0])
 
         # print("predicted images length",len(self.predicted_labels),"test_images_labels length",len(test_images_labels))
         # for j in range(len(test_images_features)):
