@@ -113,7 +113,7 @@ if data is not None:
             predict_labels.append(reverse_map[dt.predict(feature)])
         print(labels_set)
         print_matrices(test_labels, np.array(predict_labels))
-        print("--- %s seconds ---" % (time.time() - start_time))
+        # print("--- %s seconds ---" % (time.time() - start_time))
         pass
     # load query data to which we are supposed to assign labels
     # query_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
