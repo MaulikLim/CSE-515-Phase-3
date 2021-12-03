@@ -47,6 +47,7 @@ if data is not None:
         test_labels = [x.split("-")[1] for x in test_data[1]]
         test_predicted_labels = ppr.predict(test_features, test_labels)
         # print(ppr.accuracy(test_predicted_labels, test_labels))
+        print(set(labels))
         print_matrices(test_labels, np.array(test_predicted_labels))
         # for test_image,test_predicted_label in test_predicted_labels.items():
         #     print(test_image,"->",test_predicted_label)
@@ -69,6 +70,7 @@ if data is not None:
         test_features = min_max_scalar.transform(test_features)
         test_predictions = svm.predict(test_features)
         # print(list(label_map.keys()))
+        print(labels_set)
         print_matrices(test_labels, test_predictions)
 
     else:
@@ -90,4 +92,5 @@ if data is not None:
         predict_labels = []
         for i, feature in enumerate(test_features):
             predict_labels.append(reverse_map[dt.predict(feature)])
+        print(set(reverse_map.values()))
         print_matrices(test_labels, np.array(predict_labels))

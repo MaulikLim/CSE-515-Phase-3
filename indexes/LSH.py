@@ -33,7 +33,7 @@ class LSH:
             binary = data.dot(randv) >= 0
             table = defaultdict(list)
             for binaryArr,labl in zip(binary.astype(int), labels):
-                binaryrepr = (str.encode(''.join(str(binaryArr))).decode("utf-8"))
+                binaryrepr = (str.encode(''.join(str(binaryArr))).decode("utf-8").replace(" ",""))
                 table[binaryrepr[1:-1]].append(labl)
             savetable = {"randomvectors" : randv.tolist(), "table" : table}
             countbytes += sys.getsizeof(table) + randv.nbytes
@@ -71,7 +71,9 @@ class LSH:
                 table = hash_table['table']
                 random_vectors = np.array(hash_table['randomvectors'])
                 binary_repr = query.dot(random_vectors) >= 0
-                binary_idx = (str.encode(''.join(str(binary_repr.astype(int)))).decode("utf-8"))[1:-1]
+                # print(binary_repr)
+                binary_idx = (str.encode(''.join(str(binary_repr.astype(int)))).decode("utf-8").replace(" ",""))[1:-1]
+                # print(binary_idx)
                 if (Level > 0):
                     for hash_table_idx in table.keys():
                         xor = bin(int(binary_idx, 2) ^ int(hash_table_idx, 2))[2:]

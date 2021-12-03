@@ -71,6 +71,7 @@ if data is not None:
         test_labels = [x.split("-")[3].split('.')[0] for x in test_data[1]]
         test_predicted_labels = ppr.predict(test_features, test_labels)
         # print(ppr.accuracy(test_predicted_labels, test_labels))
+        print(types_of_labels)
         print_matrices(test_labels, np.array(test_predicted_labels))
         # for test_image,test_predicted_label in test_predicted_labels.items():
         #     print(test_image,"->",test_predicted_label)
@@ -81,12 +82,13 @@ if data is not None:
         labels = [int(x)-1 for x in labels]
         min_max_scalar = MinMaxScaler()
         features = min_max_scalar.fit_transform(features)
-        svm.train(np.array(features), np.array(labels), -1, 10000, 1e-2, 1e-5, verbose=True)
+        svm.train(np.array(features), np.array(labels), -1, 10000, 1e-2, 1e-5, verbose=False)
         test_data = latentFeatureGenerator.compute_latent_features(args.query_folder, args.feature_model, args.k)
         test_features = test_data[0]
         test_labels = [int(x.split("-")[3].split('.')[0]) - 1 for x in test_data[1]]
         test_features = min_max_scalar.transform(test_features)
         test_predictions = svm.predict(test_features)
+        print(set([x+1 for x in labels]))
         print_matrices(test_labels, test_predictions)
     else:
         # Train decision tree
@@ -110,6 +112,7 @@ if data is not None:
         predict_labels = []
         for i,feature in enumerate(test_features):
             predict_labels.append(reverse_map[dt.predict(feature)])
+        print(labels_set)
         print_matrices(np.array(test_labels), np.array(predict_labels))
         
     
